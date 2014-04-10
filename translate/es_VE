@@ -27,6 +27,9 @@ GUI_START=Iniciar
 GUI_STOP=Parar
 GUI_SELECTCOLOR=Seleccionar color
 GUI_DESCRIP=Descripción
+GUI_RULE=Regla
+GUI_ADD=Agregar
+GUI_DELETE=Eliminar
 
 LOG_APPINIT=Aplicación iniciada
 LOG_SIMULATIONINIT=Simulación iniciada
