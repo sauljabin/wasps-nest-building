@@ -24,14 +24,21 @@ package app;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.Vector;
 
 public class Library {
 
 	/**
 	 * https://java3d.java.net/binary-builds.html
+	 * 
+	 * @throws SecurityException
+	 * @throws NoSuchFieldException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws FileNotFoundException
 	 */
-	public static void load() throws FileNotFoundException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+	public static void load() throws NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException, FileNotFoundException {
 
 		String path = "";
 
@@ -44,20 +51,20 @@ public class Library {
 		else if (Library.is32Bit() && Library.isWindows())
 			path += Config.get("LIB_PATH_WINDOWS_32");
 		else
-			throw new FileNotFoundException("Api java 3D not found for arch");
+			throw new FileNotFoundException("Api java 3D for arch not found");
 
 		File file = new File(path);
 
 		Field field = ClassLoader.class.getDeclaredField("usr_paths");
 		field.setAccessible(true);
 		String[] paths = (String[]) field.get(null);
-		String[] tmp = new String[paths.length + 1];
-		System.arraycopy(paths, 0, tmp, 0, paths.length);
-		tmp[paths.length] = file.getAbsolutePath();
-		field.set(null, tmp);
+
+		Vector<String> pathsList = new Vector<String>();
+		Collections.addAll(pathsList, paths);
+		pathsList.add(file.getAbsolutePath());
+		field.set(null, pathsList.toArray(new String[pathsList.size()]));
 
 		System.setProperty("java.library.path", System.getProperty("java.library.path") + File.pathSeparator + file.getAbsolutePath());
-
 	}
 
 	public static boolean isLinux() {

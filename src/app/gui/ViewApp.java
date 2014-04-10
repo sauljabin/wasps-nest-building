@@ -81,6 +81,7 @@ public class ViewApp extends View {
 	private JTextField txtDescrip;
 	private JPanel pnlDescrip;
 	private JPanel pnlCanvas;
+	private JButton btnSaveImage;
 
 	@Override
 	public void init() {
@@ -209,8 +210,10 @@ public class ViewApp extends View {
 		btnDownCam = new JButton(new ImageIcon("img/arrow-down20px.png"));
 		btnZoomIn = new JButton(new ImageIcon("img/zoom-in20px.png"));
 		btnZoomOut = new JButton(new ImageIcon("img/zoom-out20px.png"));
+		btnSaveImage = new JButton(new ImageIcon("img/camera20px.png"));
 
 		pnlStatus.add(lblStatus, "width 100%");
+		pnlStatus.add(btnSaveImage);
 		pnlStatus.add(btnUpCam);
 		pnlStatus.add(btnDownCam);
 		pnlStatus.add(btnLeftCam);
@@ -230,7 +233,7 @@ public class ViewApp extends View {
 		GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
 		canvas3D = new Canvas3D(config);
 		pnlCanvas = new JPanel(new BorderLayout());
-		pnlCanvas.setBorder(BorderFactory.createEmptyBorder(0, 7, 0, 7));
+		pnlCanvas.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 7));
 		pnlCanvas.add(canvas3D, BorderLayout.CENTER);
 		pnlCenter.add(pnlCanvas, BorderLayout.CENTER);
 		// CANVAS 3D

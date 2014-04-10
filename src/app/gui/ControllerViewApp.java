@@ -16,6 +16,7 @@ import javax.media.j3d.Text3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.swing.JColorChooser;
+import javax.swing.JFrame;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.vecmath.Color3f;
@@ -29,6 +30,7 @@ import com.sun.j3d.utils.universe.SimpleUniverse;
 import app.Config;
 import app.Log;
 import app.Translate;
+import app.util.UtilDate;
 
 public class ControllerViewApp extends Controller {
 
@@ -48,7 +50,8 @@ public class ControllerViewApp extends Controller {
 		viewApp = new ViewApp();
 		initView();
 		viewApp.setController(this);
-		// viewApp.setExtendedState(JFrame.MAXIMIZED_BOTH);
+		if (Boolean.parseBoolean(Config.get("INIT_MAXIMIZED")))
+			viewApp.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		viewApp.setVisible(true);
 	}
 
@@ -81,6 +84,8 @@ public class ControllerViewApp extends Controller {
 		viewApp.getLblShowColor().setBackground(Color.BLACK);
 
 		viewApp.getBtnStop().setEnabled(false);
+
+		viewApp.getTxtDescrip().setText(UtilDate.nowString());
 
 		universe = new SimpleUniverse(viewApp.getCanvas3D());
 		BranchGroup group = new BranchGroup();
@@ -166,6 +171,12 @@ public class ControllerViewApp extends Controller {
 			upCam();
 		else if (source.equals(viewApp.getBtnDownCam()))
 			downCam();
+		else if (source.equals(viewApp.getMenuItemShowRules()))
+			showRules();
+	}
+
+	public void showRules() {
+		new ControllerViewRules();
 	}
 
 	public void downCam() {
@@ -174,7 +185,7 @@ public class ControllerViewApp extends Controller {
 
 	public void upCam() {
 		Transform3D trNew = new Transform3D();
-		trNew.rotZ(Math.PI/8);
+		trNew.rotZ(Math.PI / 8);
 		universe.getViewingPlatform().getViewPlatformTransform().setTransform(trNew);
 	}
 
@@ -235,7 +246,7 @@ public class ControllerViewApp extends Controller {
 		Vector3f v3f = new Vector3f(-1.6f, -1.35f, -15.5f);
 		t3d.setTranslation(v3f);
 		rot.rotX(Math.PI / 5);
-		//t3d.mul(rot);
+		t3d.mul(rot);
 		v3f = new Vector3f(0, -1.4f, 0f);
 		tDown.setTranslation(v3f);
 		t3d.mul(tDown);
