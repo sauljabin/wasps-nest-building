@@ -88,11 +88,11 @@ public class ViewRules extends JDialog {
 		panel.add(txtRule, "width 100%, wrap");
 		panel.add(lblState);
 		panel.add(spnState, "split 2, width 100, gapright 220");
-		panel.add(btnAddRule, "width 100, wrap");
+		panel.add(btnAddRule, "width 120, wrap");
 		panel.add(lblColor);
 		panel.add(lblShowColor, "split 3, width 80, height 20");
 		panel.add(btnSelectColor, "gapright 220");
-		panel.add(btnDeleteRule, "width 100, wrap 10");
+		panel.add(btnDeleteRule, "width 120, wrap 10");
 		panel.add(scrollPanelRules, "span 2, width 100%");
 
 		setLocationRelativeTo(this);		

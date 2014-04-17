@@ -24,10 +24,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import javax.swing.plaf.basic.BasicColorChooserUI;
-
-import org.jvnet.substance.SubstanceLookAndFeel;
-import org.jvnet.substance.skin.BusinessBlueSteelSkin;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 import app.gui.ControllerViewApp;
 
@@ -48,16 +45,28 @@ public class Main {
 	private static void loadSkin() {
 		JFrame.setDefaultLookAndFeelDecorated(true);
 		JDialog.setDefaultLookAndFeelDecorated(true);
-		SubstanceLookAndFeel.setSkin(new BusinessBlueSteelSkin());
-		UIManager.put("ColorChooserUI", BasicColorChooserUI.class.getName());
-		UIManager.put(SubstanceLookAndFeel.BUTTON_NO_MIN_SIZE_PROPERTY, Boolean.TRUE);
+
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					Log.info(Main.class, "Skin: " + info.getClassName());
+					break;
+				}
+			}
+		} catch (Exception e) {
+			Log.error(Main.class, "loadSkin()", e);
+			System.exit(0);
+		}
+
 	}
 
 	public static void main(String[] args) {
 		loadFeatures();
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				loadSkin();
+				if (Boolean.parseBoolean(Config.get("SKIN")))
+					loadSkin();
 				new ControllerViewApp();
 			}
 		});

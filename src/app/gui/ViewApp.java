@@ -1,7 +1,6 @@
 package app.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GraphicsConfiguration;
 
 import javax.media.j3d.Canvas3D;
@@ -24,6 +23,7 @@ import com.sun.j3d.utils.universe.SimpleUniverse;
 
 import net.miginfocom.swing.MigLayout;
 import app.Translate;
+import app.util.JColorChooserButton;
 
 public class ViewApp extends View {
 
@@ -61,10 +61,8 @@ public class ViewApp extends View {
 	private JLabel lblState;
 	private JSpinner spnState;
 	private JLabel lblColor;
-	private JLabel lblShowColor;
-	private JButton btnSelectColor;
+	private JColorChooserButton btnSelectColor;
 	private JMenuItem menuItemClean;
-	private JButton btnAddBlock;
 	private JButton btnStart;
 	private JButton btnStop;
 	private JPanel pnlCenter;
@@ -167,13 +165,9 @@ public class ViewApp extends View {
 		spnState = new JSpinner();
 
 		lblColor = new JLabel();
-		lblShowColor = new JLabel();
-		lblShowColor.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-		btnSelectColor = new JButton(" ... ");
+		btnSelectColor = new JColorChooserButton();
 
-		btnAddBlock = new JButton();
-
-		pnlBlock.add(lblBlockX, "width 90");
+		pnlBlock.add(lblBlockX, "width 70");
 		pnlBlock.add(spnBlockX, "width 100, wrap");
 		pnlBlock.add(lblBlockY, "grow");
 		pnlBlock.add(spnBlockY, "grow, wrap");
@@ -182,17 +176,15 @@ public class ViewApp extends View {
 		pnlBlock.add(lblState, "grow");
 		pnlBlock.add(spnState, "grow, wrap");
 		pnlBlock.add(lblColor, "grow");
-		pnlBlock.add(lblShowColor, "split 2, grow");
-		pnlBlock.add(btnSelectColor, "wrap 10");
-		pnlBlock.add(btnAddBlock, "height 25, grow, span 2, wrap");
+		pnlBlock.add(btnSelectColor, "grow, wrap");
 
 		btnStart = new JButton();
 		btnStop = new JButton();
 
 		pnlWest.add(pnlConfig, "width 210, wrap");
 		pnlWest.add(pnlBlock, "width 210, wrap 20");
-		pnlWest.add(btnStart, "height 30, width 210, wrap");
-		pnlWest.add(btnStop, "height 30, width 210, wrap");
+		// pnlWest.add(btnStart, "height 30, width 210, wrap");
+		// pnlWest.add(btnStop, "height 30, width 210, wrap");
 
 		add(pnlWest, BorderLayout.WEST);
 		// WEST
@@ -253,7 +245,6 @@ public class ViewApp extends View {
 		addMenuItemToAction(menuItemShowRules);
 		addMenuItemToAction(menuItemClean);
 
-		addButtonToAction(btnAddBlock);
 		addButtonToAction(btnSelectColor);
 		addButtonToAction(btnStart);
 		addButtonToAction(btnStop);
@@ -286,7 +277,7 @@ public class ViewApp extends View {
 		menuItemExportConfig.setText(Translate.get("GUI_EXPORTCONFIG"));
 		menuItemImportConfig.setText(Translate.get("GUI_IMPORTCONFIG"));
 		pnlConfigBorder.setTitle(Translate.get("GUI_CONFIG"));
-		pnlBlockBorder.setTitle(Translate.get("GUI_BLOCK"));
+		pnlBlockBorder.setTitle(Translate.get("GUI_INITIALBLOCK"));
 		lblIterations.setText(Translate.get("GUI_ITERATIONS"));
 		lblDelay.setText(Translate.get("GUI_DELAY"));
 		lblAgents.setText(Translate.get("GUI_AGENTS"));
@@ -296,7 +287,6 @@ public class ViewApp extends View {
 		lblBlockZ.setText(Translate.get("GUI_Z"));
 		lblState.setText(Translate.get("GUI_STATE"));
 		lblColor.setText(Translate.get("GUI_COLOR"));
-		btnAddBlock.setText(Translate.get("GUI_ADD"));
 		btnStart.setText(Translate.get("GUI_START"));
 		btnStop.setText(Translate.get("GUI_STOP"));
 		lblDescrip.setText(Translate.get("GUI_DESCRIP"));
@@ -362,16 +352,12 @@ public class ViewApp extends View {
 		return spnState;
 	}
 
-	public JButton getBtnSelectColor() {
+	public JColorChooserButton getBtnSelectColor() {
 		return btnSelectColor;
 	}
 
 	public JMenuItem getMenuItemClean() {
 		return menuItemClean;
-	}
-
-	public JButton getBtnAddBlock() {
-		return btnAddBlock;
 	}
 
 	public JButton getBtnStart() {
@@ -392,10 +378,6 @@ public class ViewApp extends View {
 
 	public JLabel getLblStatus() {
 		return lblStatus;
-	}
-
-	public JLabel getLblShowColor() {
-		return lblShowColor;
 	}
 
 	public JButton getBtnLeftCam() {

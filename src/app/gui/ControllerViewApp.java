@@ -1,7 +1,9 @@
 package app.gui;
 
-import java.awt.Color;
 import java.awt.Font;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
@@ -15,10 +17,11 @@ import javax.media.j3d.Shape3D;
 import javax.media.j3d.Text3D;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
-import javax.swing.JColorChooser;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.vecmath.Color3f;
 import javax.vecmath.Point3d;
 import javax.vecmath.Point3f;
@@ -30,6 +33,8 @@ import com.sun.j3d.utils.universe.SimpleUniverse;
 import app.Config;
 import app.Log;
 import app.Translate;
+import app.simulation.Importer;
+import app.simulation.Rule;
 import app.util.UtilDate;
 
 public class ControllerViewApp extends Controller {
@@ -45,6 +50,7 @@ public class ControllerViewApp extends Controller {
 	private SpinnerNumberModel spnStateModel;
 	private int iterations;
 	private SimpleUniverse universe;
+	private List<Rule> rules;
 
 	public ControllerViewApp() {
 		viewApp = new ViewApp();
@@ -53,6 +59,7 @@ public class ControllerViewApp extends Controller {
 		if (Boolean.parseBoolean(Config.get("INIT_MAXIMIZED")))
 			viewApp.setExtendedState(JFrame.MAXIMIZED_BOTH);
 		viewApp.setVisible(true);
+		rules = new ArrayList<Rule>();
 	}
 
 	public void initView() {
@@ -80,9 +87,6 @@ public class ControllerViewApp extends Controller {
 		spnStateModel = new SpinnerNumberModel(Integer.parseInt(Config.get("DEFAULT_STATE")), 0, Integer.parseInt(Config.get("MAX_STATE")), 1);
 		viewApp.getSpnState().setModel(spnStateModel);
 
-		viewApp.getLblShowColor().setOpaque(true);
-		viewApp.getLblShowColor().setBackground(Color.BLACK);
-
 		viewApp.getBtnStop().setEnabled(false);
 
 		viewApp.getTxtDescrip().setText(UtilDate.nowString());
@@ -102,7 +106,6 @@ public class ControllerViewApp extends Controller {
 	public void stop() {
 		viewApp.getBtnStop().setEnabled(false);
 		viewApp.getBtnStart().setEnabled(true);
-		viewApp.getBtnAddBlock().setEnabled(true);
 		viewApp.getBtnSelectColor().setEnabled(true);
 		viewApp.getMenuItemExportConfig().setEnabled(true);
 		viewApp.getMenuItemImportConfig().setEnabled(true);
@@ -121,7 +124,6 @@ public class ControllerViewApp extends Controller {
 	public void start() {
 		viewApp.getBtnStop().setEnabled(true);
 		viewApp.getBtnStart().setEnabled(false);
-		viewApp.getBtnAddBlock().setEnabled(false);
 		viewApp.getBtnSelectColor().setEnabled(false);
 		viewApp.getMenuItemExportConfig().setEnabled(false);
 		viewApp.getMenuItemImportConfig().setEnabled(false);
@@ -153,8 +155,6 @@ public class ControllerViewApp extends Controller {
 			showConfig();
 		else if (source.equals(viewApp.getSpnCellsPerAxis()))
 			changeCellsPerAxis();
-		else if (source.equals(viewApp.getBtnSelectColor()))
-			selectColor();
 		else if (source.equals(viewApp.getBtnStart()))
 			start();
 		else if (source.equals(viewApp.getBtnStop()))
@@ -173,10 +173,46 @@ public class ControllerViewApp extends Controller {
 			downCam();
 		else if (source.equals(viewApp.getMenuItemShowRules()))
 			showRules();
+		else if (source.equals(viewApp.getMenuItemImportConfig()))
+			importConfig();
+	}
+
+	public void importConfig() {
+		JFileChooser file = new JFileChooser(new File("."));
+		file.setAcceptAllFileFilterUsed(false);
+		file.setMultiSelectionEnabled(false);
+		file.setFileFilter(new FileNameExtensionFilter("XML", "xml"));
+		file.showOpenDialog(viewApp);
+		File path = file.getSelectedFile();
+
+		if (path == null)
+			return;
+
+		Importer importer = new Importer(path.getAbsolutePath());
+		try {
+			importer.importXML();
+			Log.info(getClass(), Translate.get("LOG_IMPORTSUCCESSFUL"));
+		} catch (Exception e) {
+			Log.error(getClass(), Translate.get("LOG_IMPORTERROR"), e);
+			return;
+		}
+
+		viewApp.getTxtDescrip().setText(importer.getConfiguration().getDescription());
+		viewApp.getSpnDelay().setValue(new Integer(importer.getConfiguration().getDelay()));
+		viewApp.getSpnAgents().setValue(new Integer(importer.getConfiguration().getAgents()));
+		viewApp.getSpnIterations().setValue(new Integer(importer.getConfiguration().getIterations()));
+		viewApp.getSpnCellsPerAxis().setValue(new Integer(importer.getConfiguration().getLatticeSize()));
+		viewApp.getSpnBlockX().setValue(new Integer(importer.getInitialCell().getX()));
+		viewApp.getSpnBlockY().setValue(new Integer(importer.getInitialCell().getY()));
+		viewApp.getSpnBlockZ().setValue(new Integer(importer.getInitialCell().getZ()));
+		viewApp.getSpnState().setValue(new Integer(importer.getInitialCell().getState()));
+		viewApp.getBtnSelectColor().setColor(importer.getInitialCell().getColor());
+
+		rules = importer.getRules();
 	}
 
 	public void showRules() {
-		new ControllerViewRules();
+		new ControllerViewRules(rules);
 	}
 
 	public void downCam() {
@@ -254,12 +290,6 @@ public class ControllerViewApp extends Controller {
 		tg.addChild(sh);
 		group.addChild(tg);
 
-	}
-
-	public void selectColor() {
-		Color selectedColor = JColorChooser.showDialog(viewApp, Translate.get("GUI_SELECTCOLOR"), viewApp.getLblShowColor().getBackground());
-		if (selectedColor != null)
-			viewApp.getLblShowColor().setBackground(selectedColor);
 	}
 
 	public void changeCellsPerAxis() {
