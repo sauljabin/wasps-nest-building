@@ -65,7 +65,7 @@ public class ViewConfig extends JDialog {
 
 			this.table = table;
 			this.table.setModel(this);
-			this.table.getColumnModel().getColumn(0).setMaxWidth(20);
+			this.table.getColumnModel().getColumn(0).setMaxWidth(30);
 		}
 
 		@Override

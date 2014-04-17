@@ -6,7 +6,6 @@
 	<classpathentry kind="lib" path="jar/j3dcore.jar"/>
 	<classpathentry kind="lib" path="jar/j3dutils.jar"/>
 	<classpathentry kind="lib" path="jar/vecmath.jar"/>
-	<classpathentry kind="lib" path="jar/substance-4.3.jar"/>
-	<classpathentry kind="lib" path="jar/json-20140107.jar"/>
+	<classpathentry kind="lib" path="jar/jdom-2.0.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

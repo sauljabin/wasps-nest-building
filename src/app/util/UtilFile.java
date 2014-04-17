@@ -37,13 +37,33 @@ public class UtilFile {
 			}
 		});
 	}
-	
+
 	public static String getOnlyName(File file) {
 		return getOnlyName(file.getName());
 	}
 
 	public static String getOnlyName(String fileName) {
 		return fileName.substring(0, fileName.lastIndexOf('.'));
+	}
+
+	public static String getExtension(File file) {
+		return getExtension(file.getName());
+	}
+
+	public static String getExtension(String fileName) {
+		return fileName.substring(fileName.lastIndexOf('.') + 1, fileName.length());
+	}
+
+	public static boolean isFileType(File file, String... extensions) {
+		return isFileType(file.getName(), extensions);
+	}
+
+	public static boolean isFileType(String fileName, String... extensions) {
+		for (String extension : extensions) {
+			if (fileName.toUpperCase().endsWith(extension.toUpperCase()))
+				return true;
+		}
+		return false;
 	}
 
 }

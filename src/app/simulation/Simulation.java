@@ -1,10 +1,11 @@
 package app.simulation;
 
-import java.awt.Color;
+import java.util.Random;
 
 public class Simulation implements Runnable {
 
-	public static final int AGENT_STATE = -1;
+	public static final int STATE_AGENT = -1;
+	public static final int STATE_UNOCCUPIED = 0;
 
 	private Thread thread;
 	private int tmax;
@@ -15,8 +16,8 @@ public class Simulation implements Runnable {
 	private Cell[][][] lattice;
 	private int delay;
 	private int iterations;
-
 	private boolean stop;
+	private Random random;
 
 	public int getIterations() {
 		return iterations;
@@ -53,6 +54,8 @@ public class Simulation implements Runnable {
 		this.rules = rules;
 		this.delay = 40;
 
+		random = new Random();
+
 		createLattice();
 		createAgents();
 	}
@@ -69,7 +72,7 @@ public class Simulation implements Runnable {
 		for (int x = 0; x < latticeSize; x++) {
 			for (int y = 0; y < latticeSize; y++) {
 				for (int z = 0; z < latticeSize; z++) {
-					lattice[x][y][z] = new Cell(x, y, z, 0, null);
+					lattice[x][y][z] = new Cell(x, y, z, STATE_UNOCCUPIED, null);
 				}
 			}
 		}
@@ -80,10 +83,6 @@ public class Simulation implements Runnable {
 			if (rules[i].getNeighbourhood().equals(neighbourhood))
 				return rules[i];
 		}
-		return null;
-	}
-
-	public String getNeighbourhood(Agent agent) {
 		return null;
 	}
 
@@ -109,23 +108,56 @@ public class Simulation implements Runnable {
 		}
 	}
 
-	public void updateCell(int x, int y, int z, int state, Color color) {
-		Cell cell = lattice[x][y][z];
-		cell.setState(state);
-		cell.setColor(color);
+	public void moveRandomly(Agent agent) {
+
+		Cell cell = lattice[agent.getX()][agent.getY()][agent.getZ()];
+		if (cell.getState() == STATE_AGENT)
+			cell.setState(STATE_UNOCCUPIED);
+
+		int x, y, z = 0;
+
+		while (true) {
+			x = random.nextInt(latticeSize);
+			y = random.nextInt(latticeSize);
+			z = random.nextInt(latticeSize);
+			cell = lattice[x][y][z];
+			if (cell.getState() == STATE_UNOCCUPIED) {
+				agent.setX(x);
+				agent.setY(y);
+				agent.setZ(z);
+				cell.setState(STATE_AGENT);
+				break;
+			}
+		}
+	}
+
+	public String getNeighbourhood(Agent agent) {
+		
+		
+		
+		return null;
 	}
 
 	@Override
 	public void run() {
+
+		for (int k = 0; k < m; k++) {
+			Agent agent = agents[k];
+			moveRandomly(agent);
+		}
+
 		while (!stop && iterations <= tmax) {
 
 			for (int k = 0; k < m; k++) {
 				Agent agent = agents[k];
 				String neighbourhood = getNeighbourhood(agent);
 				Rule rule = findRule(neighbourhood);
-				if (rule != null)
-					updateCell(agent.getX(), agent.getY(), agent.getZ(), rule.getState(), rule.getColor());
-
+				Cell cell = lattice[agent.getX()][agent.getY()][agent.getZ()];
+				if (rule != null) {
+					cell.setState(rule.getState());
+					cell.setColor(rule.getColor());
+				}
+				moveRandomly(agent);
 			}
 
 			iterations++;
