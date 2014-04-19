@@ -1,41 +1,34 @@
 package app.gui;
 
-import java.awt.Font;
+import java.awt.Color;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.media.j3d.AmbientLight;
-import javax.media.j3d.Appearance;
+import javax.media.j3d.Alpha;
 import javax.media.j3d.BoundingSphere;
 import javax.media.j3d.BranchGroup;
-import javax.media.j3d.DirectionalLight;
-import javax.media.j3d.Font3D;
-import javax.media.j3d.FontExtrusion;
-import javax.media.j3d.Material;
-import javax.media.j3d.Shape3D;
-import javax.media.j3d.Text3D;
-import javax.media.j3d.Transform3D;
+import javax.media.j3d.RotationInterpolator;
 import javax.media.j3d.TransformGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.vecmath.Color3f;
-import javax.vecmath.Point3d;
-import javax.vecmath.Point3f;
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
 
+import com.sun.j3d.utils.geometry.ColorCube;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 
 import app.Config;
 import app.Log;
 import app.Translate;
+import app.simulation.Cell;
+import app.simulation.Configuration;
+import app.simulation.Exporter;
 import app.simulation.Importer;
 import app.simulation.Rule;
 import app.util.UtilDate;
+import app.util.UtilFile;
 
 public class ControllerViewApp extends Controller {
 
@@ -48,18 +41,25 @@ public class ControllerViewApp extends Controller {
 	private SpinnerNumberModel spnBlockYModel;
 	private SpinnerNumberModel spnBlockZModel;
 	private SpinnerNumberModel spnStateModel;
-	private int iterations;
 	private SimpleUniverse universe;
 	private List<Rule> rules;
+	private boolean simulationStarted;
+	private BranchGroup group;
 
 	public ControllerViewApp() {
 		viewApp = new ViewApp();
 		initView();
 		viewApp.setController(this);
+
 		if (Boolean.parseBoolean(Config.get("INIT_MAXIMIZED")))
 			viewApp.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+		initUniverse();
+
 		viewApp.setVisible(true);
 		rules = new ArrayList<Rule>();
+		Log.setLogTextArea(viewApp.getConsole());
+		Log.info(getClass(), Translate.get("LOG_APPINIT"));
 	}
 
 	public void initView() {
@@ -87,29 +87,14 @@ public class ControllerViewApp extends Controller {
 		spnStateModel = new SpinnerNumberModel(Integer.parseInt(Config.get("DEFAULT_STATE")), 0, Integer.parseInt(Config.get("MAX_STATE")), 1);
 		viewApp.getSpnState().setModel(spnStateModel);
 
-		viewApp.getBtnStop().setEnabled(false);
+		viewApp.getBtnSelectColor().setColor(Color.BLACK);
 
-		viewApp.getTxtDescrip().setText(UtilDate.nowString());
-
-		universe = new SimpleUniverse(viewApp.getCanvas3D());
-		BranchGroup group = new BranchGroup();
-		addObjects(group);
-		addLights(group);
-		universe.getViewingPlatform().setNominalViewingTransform();
-		universe.addBranchGraph(group);
-
-		updateStatus();
-		Log.setLogTextArea(viewApp.getConsole());
-		Log.info(getClass(), Translate.get("LOG_APPINIT"));
-	}
-
-	public void stop() {
 		viewApp.getBtnStop().setEnabled(false);
 		viewApp.getBtnStart().setEnabled(true);
 		viewApp.getBtnSelectColor().setEnabled(true);
 		viewApp.getMenuItemExportConfig().setEnabled(true);
 		viewApp.getMenuItemImportConfig().setEnabled(true);
-		viewApp.getMenuItemClean().setEnabled(true);
+		viewApp.getMenuItemClear().setEnabled(true);
 		viewApp.getSpnAgents().setEnabled(true);
 		viewApp.getSpnBlockX().setEnabled(true);
 		viewApp.getSpnBlockY().setEnabled(true);
@@ -118,6 +103,23 @@ public class ControllerViewApp extends Controller {
 		viewApp.getSpnDelay().setEnabled(true);
 		viewApp.getSpnIterations().setEnabled(true);
 		viewApp.getSpnState().setEnabled(true);
+		viewApp.getBtnZoomIn().setEnabled(false);
+		viewApp.getBtnZoomOut().setEnabled(false);
+		viewApp.getBtnSaveImage().setEnabled(false);
+
+		viewApp.getTxtDescrip().setText(UtilDate.nowString());
+
+		updateStatus();
+	}
+
+	public void stop() {
+		viewApp.getBtnStop().setEnabled(false);
+		viewApp.getBtnStart().setEnabled(true);
+		viewApp.getSpnDelay().setEnabled(true);
+		viewApp.getSpnIterations().setEnabled(true);
+		viewApp.getMenuItemExportConfig().setEnabled(true);
+		viewApp.getMenuItemClear().setEnabled(true);
+
 		Log.info(getClass(), Translate.get("LOG_SIMULATIONSTOP"));
 	}
 
@@ -127,20 +129,40 @@ public class ControllerViewApp extends Controller {
 		viewApp.getBtnSelectColor().setEnabled(false);
 		viewApp.getMenuItemExportConfig().setEnabled(false);
 		viewApp.getMenuItemImportConfig().setEnabled(false);
-		viewApp.getMenuItemClean().setEnabled(false);
+		viewApp.getMenuItemClear().setEnabled(false);
 		viewApp.getSpnAgents().setEnabled(false);
 		viewApp.getSpnBlockX().setEnabled(false);
 		viewApp.getSpnBlockY().setEnabled(false);
 		viewApp.getSpnBlockZ().setEnabled(false);
 		viewApp.getSpnCellsPerAxis().setEnabled(false);
-		viewApp.getSpnDelay().setEnabled(false);
-		viewApp.getSpnIterations().setEnabled(false);
 		viewApp.getSpnState().setEnabled(false);
+		viewApp.getBtnZoomIn().setEnabled(true);
+		viewApp.getBtnZoomOut().setEnabled(true);
+		viewApp.getBtnSaveImage().setEnabled(true);
 		Log.info(getClass(), Translate.get("LOG_SIMULATIONINIT"));
+		simulationStarted = true;
+	}
+
+	public void initUniverse() {
+		universe = new SimpleUniverse(viewApp.getCanvas3D());
+		universe.getViewingPlatform().setNominalViewingTransform();
+		group = new BranchGroup();
+		TransformGroup transformGroup = new TransformGroup();
+		transformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+		group.addChild(transformGroup);
+
+		transformGroup.addChild(new ColorCube(0.4));
+		Alpha rotationAlpha = new Alpha(-1, 4000);
+		RotationInterpolator rotator = new RotationInterpolator(rotationAlpha, transformGroup);
+		BoundingSphere bounds = new BoundingSphere();
+		rotator.setSchedulingBounds(bounds);
+		transformGroup.addChild(rotator);
+
+		universe.addBranchGraph(group);
 	}
 
 	public void updateStatus() {
-		viewApp.getLblStatus().setText(String.format("%s: %d", Translate.get("GUI_ITERATIONS"), iterations));
+		viewApp.getLblStatus().setText(String.format("%s %d", Translate.get("GUI_ITERATIONS"), 0));
 	}
 
 	@Override
@@ -163,18 +185,51 @@ public class ControllerViewApp extends Controller {
 			zoomIn();
 		else if (source.equals(viewApp.getBtnZoomOut()))
 			zoomOut();
-		else if (source.equals(viewApp.getBtnLeftCam()))
-			leftCam();
-		else if (source.equals(viewApp.getBtnRightCam()))
-			rightCam();
-		else if (source.equals(viewApp.getBtnUpCam()))
-			upCam();
-		else if (source.equals(viewApp.getBtnDownCam()))
-			downCam();
 		else if (source.equals(viewApp.getMenuItemShowRules()))
 			showRules();
 		else if (source.equals(viewApp.getMenuItemImportConfig()))
 			importConfig();
+		else if (source.equals(viewApp.getMenuItemExportConfig()))
+			exportConfig();
+		else if (source.equals(viewApp.getMenuItemClear()))
+			clear();
+	}
+
+	public void clear() {
+		initView();
+		rules.clear();
+		simulationStarted = false;
+	}
+
+	public void exportConfig() {
+		JFileChooser file = new JFileChooser();
+		file.setCurrentDirectory(new File("."));
+		file.setSelectedFile(new File(viewApp.getTxtDescrip().getText()));
+		file.setAcceptAllFileFilterUsed(false);
+		file.setMultiSelectionEnabled(false);
+		file.setFileFilter(new FileNameExtensionFilter("XML", "xml"));
+		file.showSaveDialog(viewApp);
+		File path = file.getSelectedFile();
+
+		if (path == null)
+			return;
+
+		Configuration configuration = new Configuration((Integer) spnDelayModel.getValue(), (Integer) spnIterationsModel.getValue(), (Integer) spnAgentsModel.getValue(), (Integer) spnCellsPerAxisModel.getValue(), viewApp.getTxtDescrip().getText());
+		Cell initialCell = new Cell((Integer) spnBlockXModel.getValue(), (Integer) spnBlockYModel.getValue(), (Integer) spnBlockZModel.getValue(), (Integer) spnStateModel.getValue(), viewApp.getBtnSelectColor().getColor());
+
+		String fileName = path.getAbsolutePath();
+
+		if (!UtilFile.isFileType(fileName, "xml"))
+			fileName += ".xml";
+
+		Exporter exporter = new Exporter(fileName, configuration, initialCell, rules);
+		try {
+			exporter.exportXML();
+			Log.info(getClass(), Translate.get("LOG_EXPORTSUCCESSFUL") + " " + fileName);
+		} catch (Exception e) {
+			Log.error(getClass(), Translate.get("LOG_EXPORTERROR"), e);
+			return;
+		}
 	}
 
 	public void importConfig() {
@@ -212,25 +267,7 @@ public class ControllerViewApp extends Controller {
 	}
 
 	public void showRules() {
-		new ControllerViewRules(rules);
-	}
-
-	public void downCam() {
-
-	}
-
-	public void upCam() {
-		Transform3D trNew = new Transform3D();
-		trNew.rotZ(Math.PI / 8);
-		universe.getViewingPlatform().getViewPlatformTransform().setTransform(trNew);
-	}
-
-	public void rightCam() {
-
-	}
-
-	public void leftCam() {
-
+		new ControllerViewRules(rules, simulationStarted);
 	}
 
 	public void zoomOut() {
@@ -238,57 +275,6 @@ public class ControllerViewApp extends Controller {
 	}
 
 	public void zoomIn() {
-		Transform3D trNew = new Transform3D();
-		trNew.setTranslation(new Vector3d(3.0, 3.0, 3.0));
-		universe.getViewingPlatform().getViewPlatformTransform().setTransform(trNew);
-
-	}
-
-	public void addLights(BranchGroup group) {
-		BoundingSphere bounds = new BoundingSphere(new Point3d(0.0, 0.0, 0.0), 1000.0);
-
-		Color3f light1Color = new Color3f(1.0f, 1.0f, 1.0f);
-		Vector3f light1Direction = new Vector3f(4.0f, -7.0f, -12.0f);
-		DirectionalLight light1 = new DirectionalLight(light1Color, light1Direction);
-		light1.setInfluencingBounds(bounds);
-		group.addChild(light1);
-
-		// Set up the ambient light
-		Color3f ambientColor = new Color3f(.1f, .1f, .1f);
-		AmbientLight ambientLightNode = new AmbientLight(ambientColor);
-		ambientLightNode.setInfluencingBounds(bounds);
-		group.addChild(ambientLightNode);
-	}
-
-	private void addObjects(BranchGroup group) {
-		Font3D f3d = new Font3D(new Font("TestFont", Font.PLAIN, 2), new FontExtrusion());
-		Text3D text = new Text3D(f3d, new String("Java3D.org"), new Point3f(-3.5f, -.5f, -4.5f));
-
-		text.setString("Java3D.org");
-		Color3f white = new Color3f(1.0f, 1.0f, 1.0f);
-		Color3f blue = new Color3f(.2f, 0.2f, 0.6f);
-		Appearance a = new Appearance();
-		Material m = new Material(blue, blue, blue, white, 80.0f);
-		m.setLightingEnable(true);
-		a.setMaterial(m);
-
-		Shape3D sh = new Shape3D();
-		sh.setGeometry(text);
-		sh.setAppearance(a);
-		TransformGroup tg = new TransformGroup();
-		Transform3D t3d = new Transform3D();
-		Transform3D tDown = new Transform3D();
-		Transform3D rot = new Transform3D();
-		Vector3f v3f = new Vector3f(-1.6f, -1.35f, -15.5f);
-		t3d.setTranslation(v3f);
-		rot.rotX(Math.PI / 5);
-		t3d.mul(rot);
-		v3f = new Vector3f(0, -1.4f, 0f);
-		tDown.setTranslation(v3f);
-		t3d.mul(tDown);
-		tg.setTransform(t3d);
-		tg.addChild(sh);
-		group.addChild(tg);
 
 	}
 

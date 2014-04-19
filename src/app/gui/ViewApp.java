@@ -62,7 +62,7 @@ public class ViewApp extends View {
 	private JSpinner spnState;
 	private JLabel lblColor;
 	private JColorChooserButton btnSelectColor;
-	private JMenuItem menuItemClean;
+	private JMenuItem menuItemClear;
 	private JButton btnStart;
 	private JButton btnStop;
 	private JPanel pnlCenter;
@@ -70,16 +70,12 @@ public class ViewApp extends View {
 	private JButton btnZoomIn;
 	private JButton btnZoomOut;
 	private JLabel lblStatus;
-	private JButton btnLeftCam;
-	private JButton btnRightCam;
-	private JButton btnUpCam;
-	private JButton btnDownCam;
 	private Canvas3D canvas3D;
 	private JLabel lblDescrip;
 	private JTextField txtDescrip;
-	private JPanel pnlDescrip;
 	private JPanel pnlCanvas;
 	private JButton btnSaveImage;
+	private JPanel pnlEast;
 
 	@Override
 	public void init() {
@@ -95,16 +91,16 @@ public class ViewApp extends View {
 		menuBar.add(menuHelp);
 		menuItemShowConfig = new JMenuItem();
 		menuItemShowRules = new JMenuItem();
-		menuItemClean = new JMenuItem();
+		menuItemClear = new JMenuItem();
 		menuItemImportConfig = new JMenuItem();
 		menuItemExportConfig = new JMenuItem();
 		menuItemClose = new JMenuItem();
 		menuOptions.add(menuItemShowConfig);
 		menuOptions.add(menuItemShowRules);
 		menuOptions.add(new JSeparator());
-		menuOptions.add(menuItemClean);
 		menuOptions.add(menuItemImportConfig);
 		menuOptions.add(menuItemExportConfig);
+		menuOptions.add(menuItemClear);
 		menuOptions.add(new JSeparator());
 		menuOptions.add(menuItemClose);
 		menuItemAbout = new JMenuItem();
@@ -139,7 +135,7 @@ public class ViewApp extends View {
 		lblCellsPerAxis = new JLabel();
 		spnCellsPerAxis = new JSpinner();
 
-		pnlConfig.add(lblDelay, "width 90");
+		pnlConfig.add(lblDelay, "width 80");
 		pnlConfig.add(spnDelay, "width 100, wrap");
 		pnlConfig.add(lblIterations, "grow");
 		pnlConfig.add(spnIterations, "grow, wrap");
@@ -167,7 +163,7 @@ public class ViewApp extends View {
 		lblColor = new JLabel();
 		btnSelectColor = new JColorChooserButton();
 
-		pnlBlock.add(lblBlockX, "width 70");
+		pnlBlock.add(lblBlockX, "width 80");
 		pnlBlock.add(spnBlockX, "width 100, wrap");
 		pnlBlock.add(lblBlockY, "grow");
 		pnlBlock.add(spnBlockY, "grow, wrap");
@@ -176,56 +172,52 @@ public class ViewApp extends View {
 		pnlBlock.add(lblState, "grow");
 		pnlBlock.add(spnState, "grow, wrap");
 		pnlBlock.add(lblColor, "grow");
-		pnlBlock.add(btnSelectColor, "grow, wrap");
-
-		btnStart = new JButton();
-		btnStop = new JButton();
+		pnlBlock.add(btnSelectColor, "grow, height 30, wrap");
 
 		pnlWest.add(pnlConfig, "width 210, wrap");
 		pnlWest.add(pnlBlock, "width 210, wrap 20");
-		// pnlWest.add(btnStart, "height 30, width 210, wrap");
-		// pnlWest.add(btnStop, "height 30, width 210, wrap");
 
 		add(pnlWest, BorderLayout.WEST);
 		// WEST
+
+		// EAST
+		pnlEast = new JPanel(new MigLayout());
+
+		btnStart = new JButton(new ImageIcon("img/play20px.png"));
+		btnStop = new JButton(new ImageIcon("img/pause20px.png"));
+
+		btnZoomIn = new JButton(new ImageIcon("img/zoom-in20px.png"));
+		btnZoomOut = new JButton(new ImageIcon("img/zoom-out20px.png"));
+		btnSaveImage = new JButton(new ImageIcon("img/camera20px.png"));
+
+		pnlEast.add(btnStart, "wrap");
+		pnlEast.add(btnStop, "wrap 20");
+		pnlEast.add(btnSaveImage, "wrap");
+		pnlEast.add(btnZoomIn, "wrap");
+		pnlEast.add(btnZoomOut, "wrap");
+
+		add(pnlEast, BorderLayout.EAST);
+		// EAST
 
 		// CENTER
 		pnlCenter = new JPanel(new BorderLayout());
 
 		pnlStatus = new JPanel(new MigLayout());
-
-		lblStatus = new JLabel();
-
-		btnLeftCam = new JButton(new ImageIcon("img/arrow-left20px.png"));
-		btnRightCam = new JButton(new ImageIcon("img/arrow-right20px.png"));
-		btnUpCam = new JButton(new ImageIcon("img/arrow-up20px.png"));
-		btnDownCam = new JButton(new ImageIcon("img/arrow-down20px.png"));
-		btnZoomIn = new JButton(new ImageIcon("img/zoom-in20px.png"));
-		btnZoomOut = new JButton(new ImageIcon("img/zoom-out20px.png"));
-		btnSaveImage = new JButton(new ImageIcon("img/camera20px.png"));
-
-		pnlStatus.add(lblStatus, "width 100%");
-		pnlStatus.add(btnSaveImage);
-		pnlStatus.add(btnUpCam);
-		pnlStatus.add(btnDownCam);
-		pnlStatus.add(btnLeftCam);
-		pnlStatus.add(btnRightCam);
-		pnlStatus.add(btnZoomIn);
-		pnlStatus.add(btnZoomOut);
-		pnlCenter.add(pnlStatus, BorderLayout.SOUTH);
-
-		pnlDescrip = new JPanel(new MigLayout());
 		lblDescrip = new JLabel();
 		txtDescrip = new JTextField();
-		pnlDescrip.add(lblDescrip);
-		pnlDescrip.add(txtDescrip, "width 100%");
-		pnlCenter.add(pnlDescrip, BorderLayout.NORTH);
+		lblStatus = new JLabel();
+
+		pnlStatus.add(lblDescrip,"gapright 30");
+		pnlStatus.add(txtDescrip, "width 100%, wrap");
+		pnlStatus.add(lblStatus, "width 100%, span 2");
+
+		pnlCenter.add(pnlStatus, BorderLayout.SOUTH);
 
 		// CANVAS 3D
 		GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
 		canvas3D = new Canvas3D(config);
 		pnlCanvas = new JPanel(new BorderLayout());
-		pnlCanvas.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 7));
+		pnlCanvas.setBorder(BorderFactory.createEmptyBorder(8, 10, 0, 7));
 		pnlCanvas.add(canvas3D, BorderLayout.CENTER);
 		pnlCenter.add(pnlCanvas, BorderLayout.CENTER);
 		// CANVAS 3D
@@ -243,17 +235,13 @@ public class ViewApp extends View {
 		addMenuItemToAction(menuItemImportConfig);
 		addMenuItemToAction(menuItemShowConfig);
 		addMenuItemToAction(menuItemShowRules);
-		addMenuItemToAction(menuItemClean);
+		addMenuItemToAction(menuItemClear);
 
 		addButtonToAction(btnSelectColor);
 		addButtonToAction(btnStart);
 		addButtonToAction(btnStop);
 		addButtonToAction(btnZoomIn);
 		addButtonToAction(btnZoomOut);
-		addButtonToAction(btnLeftCam);
-		addButtonToAction(btnRightCam);
-		addButtonToAction(btnDownCam);
-		addButtonToAction(btnUpCam);
 
 		addSpinnerToAction(spnAgents);
 		addSpinnerToAction(spnBlockX);
@@ -273,7 +261,7 @@ public class ViewApp extends View {
 		menuItemClose.setText(Translate.get("GUI_CLOSE"));
 		menuItemAbout.setText(Translate.get("GUI_ABOUT"));
 		menuItemShowRules.setText(Translate.get("GUI_SHOWRULES"));
-		menuItemClean.setText(Translate.get("GUI_CLEAN"));
+		menuItemClear.setText(Translate.get("GUI_CLEAN"));
 		menuItemExportConfig.setText(Translate.get("GUI_EXPORTCONFIG"));
 		menuItemImportConfig.setText(Translate.get("GUI_IMPORTCONFIG"));
 		pnlConfigBorder.setTitle(Translate.get("GUI_CONFIG"));
@@ -287,8 +275,6 @@ public class ViewApp extends View {
 		lblBlockZ.setText(Translate.get("GUI_Z"));
 		lblState.setText(Translate.get("GUI_STATE"));
 		lblColor.setText(Translate.get("GUI_COLOR"));
-		btnStart.setText(Translate.get("GUI_START"));
-		btnStop.setText(Translate.get("GUI_STOP"));
 		lblDescrip.setText(Translate.get("GUI_DESCRIP"));
 	}
 
@@ -356,8 +342,8 @@ public class ViewApp extends View {
 		return btnSelectColor;
 	}
 
-	public JMenuItem getMenuItemClean() {
-		return menuItemClean;
+	public JMenuItem getMenuItemClear() {
+		return menuItemClear;
 	}
 
 	public JButton getBtnStart() {
@@ -380,28 +366,16 @@ public class ViewApp extends View {
 		return lblStatus;
 	}
 
-	public JButton getBtnLeftCam() {
-		return btnLeftCam;
-	}
-
-	public JButton getBtnRightCam() {
-		return btnRightCam;
-	}
-
-	public JButton getBtnUpCam() {
-		return btnUpCam;
-	}
-
-	public JButton getBtnDownCam() {
-		return btnDownCam;
-	}
-
 	public Canvas3D getCanvas3D() {
 		return canvas3D;
 	}
 
 	public JTextField getTxtDescrip() {
 		return txtDescrip;
+	}
+
+	public JButton getBtnSaveImage() {
+		return btnSaveImage;
 	}
 
 }

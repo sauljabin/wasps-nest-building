@@ -136,12 +136,13 @@ public class Importer {
 		}
 
 		Element tagRules = root.getChild("rules");
-
+		rules = new ArrayList<Rule>();
+		
 		if (tagRules != null) {
 			List<Element> elementRules = tagRules.getChildren("rule");
 
 			if (elementRules.size() > 0) {
-				rules = new ArrayList<Rule>();
+				
 
 				for (Element rule : elementRules) {
 

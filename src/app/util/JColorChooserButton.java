@@ -55,7 +55,10 @@ public class JColorChooserButton extends JButton implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		setColor(JColorChooser.showDialog(null, "Color", color));
+		Color colorTemp = JColorChooser.showDialog(null, "Color", color);
+		if (colorTemp == null)
+			colorTemp = color;
+		setColor(colorTemp);
 	}
 
 }

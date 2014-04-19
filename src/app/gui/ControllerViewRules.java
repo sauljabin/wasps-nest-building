@@ -2,12 +2,14 @@ package app.gui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.JColorChooser;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -19,19 +21,22 @@ import app.simulation.Rule;
 public class ControllerViewRules extends Controller {
 
 	private ViewRules viewRules;
+	private ViewRule viewRule;
 	private SpinnerNumberModel spnStateModel;
 	private List<Rule> rules;
+	private RulesModelTable rulesModelTable;
+	private Rule ruleSelected;
 
-	public ControllerViewRules(List<Rule> rules) {
+	public ControllerViewRules(List<Rule> rules, boolean simulationStarted) {
 		this.rules = rules;
-		viewRules = new ViewRules();
+
+		viewRules = new ViewRules(simulationStarted);
 		viewRules.setController(this);
-		spnStateModel = new SpinnerNumberModel(Integer.parseInt(Config.get("DEFAULT_STATE")), 0, Integer.parseInt(Config.get("MAX_STATE")), 1);
-		viewRules.getSpnState().setModel(spnStateModel);
-		viewRules.getLblShowColor().setOpaque(true);
-		viewRules.getLblShowColor().setBackground(Color.BLACK);
-		new RulesModelTable(viewRules.getTableRules());
+		initState();
+
+		rulesModelTable = new RulesModelTable(viewRules.getTableRules());
 		new RulesRendererCellTable(viewRules.getTableRules());
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -42,18 +47,110 @@ public class ControllerViewRules extends Controller {
 
 	}
 
-	public void selectColor() {
-		Color selectedColor = JColorChooser.showDialog(viewRules, Translate.get("GUI_SELECTCOLOR"), viewRules.getLblShowColor().getBackground());
-		if (selectedColor != null)
-			viewRules.getLblShowColor().setBackground(selectedColor);
+	public void initState() {
+		viewRules.getBtnDeleteRule().setEnabled(false);
+		viewRules.getBtnEditRule().setEnabled(false);
 	}
 
 	@Override
 	public void action(Object source) {
-		if (source.equals(viewRules.getBtnSelectColor()))
-			selectColor();
 		if (source.equals(viewRules))
 			close();
+		else if (source.equals(viewRules.getBtnAddRule()))
+			newRule();
+		else if (source.equals(viewRules.getBtnDeleteRule()))
+			deleteRule();
+		else if (source.equals(viewRules.getBtnEditRule()))
+			showEdit();
+
+		if (viewRule != null) {
+			if (source.equals(viewRule.getBtnCancel()))
+				closeEdit();
+			else if (source.equals(viewRule.getBtnAddRule()))
+				addRule();
+		}
+	}
+
+	public void closeEdit() {
+		viewRule.dispose();
+		viewRule = null;
+	}
+
+	public void deleteRule() {
+		List<Rule> delete = rulesModelTable.getSelection();
+		for (Rule rule : delete) {
+			rules.remove(rule);
+		}
+		rulesModelTable = new RulesModelTable(viewRules.getTableRules());
+		initState();
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		viewRules.getBtnDeleteRule().setEnabled(true);
+		viewRules.getBtnEditRule().setEnabled(true);
+	}
+
+	public void addRule() {
+		if (ruleSelected == null) {
+			ruleSelected = new Rule();
+			rules.add(ruleSelected);
+		}
+		ruleSelected.setColor(viewRule.getBtnSelectColor().getColor());
+		ruleSelected.setState((Integer) viewRule.getSpnState().getValue());
+		ruleSelected.setNeighbourhood(viewRule.getTxtRule().getText());
+		closeEdit();
+		rulesModelTable = new RulesModelTable(viewRules.getTableRules());
+		initState();
+	}
+
+	public void newRule() {
+
+		viewRule = new ViewRule();
+
+		spnStateModel = new SpinnerNumberModel(Integer.parseInt(Config.get("DEFAULT_STATE")), 0, Integer.parseInt(Config.get("MAX_STATE")), 1);
+		viewRule.getSpnState().setModel(spnStateModel);
+
+		viewRule.setController(this);
+
+		ruleSelected = null;
+
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				viewRule.setModal(true);
+				viewRule.setVisible(true);
+			}
+		});
+
+	}
+
+	public void showEdit() {
+
+		viewRule = new ViewRule();
+
+		spnStateModel = new SpinnerNumberModel(Integer.parseInt(Config.get("DEFAULT_STATE")), 0, Integer.parseInt(Config.get("MAX_STATE")), 1);
+		viewRule.getSpnState().setModel(spnStateModel);
+
+		viewRule.setController(this);
+
+		if (rulesModelTable.getSelection().size() > 0) {
+			ruleSelected = rulesModelTable.getSelection().get(0);
+			viewRule.getTxtRule().setText(ruleSelected.getNeighbourhood());
+			viewRule.getBtnSelectColor().setColor(ruleSelected.getColor());
+			viewRule.getSpnState().setValue(ruleSelected.getState());
+		} else {
+			ruleSelected = null;
+		}
+
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				viewRule.setModal(true);
+				viewRule.setVisible(true);
+			}
+		});
+
 	}
 
 	public void close() {
@@ -76,22 +173,21 @@ public class ControllerViewRules extends Controller {
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			if (column == 3) {
-				this.setBackground(rules.get(row).getColor());
-				table.setSelectionBackground(rules.get(row).getColor());
-			} else {
-				this.setBackground(background);
-				table.setSelectionBackground(selectionColor);
-			}
+			Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-			// if (column == 0)
-			// this.setHorizontalAlignment(SwingConstants.CENTER);
-			// else
-			// this.setHorizontalAlignment(SwingConstants.LEFT);
+			if (column == 3)
+				c.setBackground(rules.get(row).getColor());
+			else if (isSelected)
+				c.setBackground(selectionColor);
+			else
+				c.setBackground(background);
 
-			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			if (column == 1)
+				this.setHorizontalAlignment(SwingConstants.LEFT);
+			else
+				this.setHorizontalAlignment(SwingConstants.CENTER);
 
-			return this;
+			return c;
 		}
 
 	}
@@ -111,6 +207,8 @@ public class ControllerViewRules extends Controller {
 			this.table = table;
 			this.table.setModel(this);
 			this.table.getColumnModel().getColumn(0).setMaxWidth(30);
+			this.table.getColumnModel().getColumn(2).setMaxWidth(50);
+			this.table.getColumnModel().getColumn(3).setMaxWidth(50);
 			this.table.setRowHeight(30);
 		}
 
@@ -142,6 +240,15 @@ public class ControllerViewRules extends Controller {
 		@Override
 		public String getColumnName(int column) {
 			return titles.get(column);
+		}
+
+		public List<Rule> getSelection() {
+			int[] selection = table.getSelectedRows();
+			List<Rule> selectionRules = new ArrayList<Rule>();
+			for (int i = 0; i < selection.length; i++) {
+				selectionRules.add(rules.get(table.convertRowIndexToModel(selection[i])));
+			}
+			return selectionRules;
 		}
 
 	}
