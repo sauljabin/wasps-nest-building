@@ -30,9 +30,12 @@ GUI_DESCRIP=Descripción
 GUI_RULE=Regla
 GUI_ADD=Agregar
 GUI_DELETE=Eliminar
+GUI_CANCEL=Cancelar
 
 LOG_APPINIT=Aplicación iniciada
 LOG_SIMULATIONINIT=Simulación iniciada
 LOG_SIMULATIONSTOP=Simulación detenida
 LOG_IMPORTERROR=Error al importar configuración
 LOG_IMPORTSUCCESSFUL=Archivo importado satisfactoriamente
+LOG_EXPORTERROR=Error al exportar configuración
+LOG_EXPORTSUCCESSFUL=Archivo exportado satisfactoriamente

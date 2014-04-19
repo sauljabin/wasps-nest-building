@@ -28,4 +28,19 @@ public class Agent {
 	public void setZ(int z) {
 		this.z = z;
 	}
+
+	@Override
+	public String toString() {
+		return String.format("Agent [x=%2s, y=%2s, z=%2s]", x, y, z);
+	}
+
+	public Agent() {
+	}
+
+	public Agent(int x, int y, int z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+	}
+
 }

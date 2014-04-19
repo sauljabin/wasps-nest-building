@@ -24,10 +24,12 @@ import java.util.Collections;
 import java.util.Vector;
 
 import javax.swing.JDialog;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
+import net.miginfocom.swing.MigLayout;
 import app.Config;
 import app.Translate;
 
@@ -38,10 +40,16 @@ public class ViewConfig extends JDialog {
 	public ViewConfig() {
 		setSize(400, 250);
 		setTitle(Config.get("APP_NAME"));
-		JScrollPane panel = new JScrollPane();
+
+		JPanel panel = new JPanel(new MigLayout());
+
+		JScrollPane scrollPanel = new JScrollPane();
+
+		panel.add(scrollPanel);
+
 		add(panel);
 		JTable table = new JTable();
-		panel.setViewportView(table);
+		scrollPanel.setViewportView(table);
 		new ConfigModelTable(table);
 		setLocationRelativeTo(this);
 		setModal(true);
