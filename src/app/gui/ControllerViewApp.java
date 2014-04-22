@@ -5,23 +5,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.media.j3d.Alpha;
-import javax.media.j3d.BoundingSphere;
-import javax.media.j3d.BranchGroup;
-import javax.media.j3d.RotationInterpolator;
-import javax.media.j3d.TransformGroup;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import com.sun.j3d.utils.geometry.ColorCube;
-import com.sun.j3d.utils.universe.SimpleUniverse;
-
 import app.Config;
 import app.Log;
 import app.Translate;
+import app.animation.Simulation3D;
 import app.simulation.Cell;
 import app.simulation.Configuration;
 import app.simulation.Exporter;
@@ -41,10 +34,9 @@ public class ControllerViewApp extends Controller {
 	private SpinnerNumberModel spnBlockYModel;
 	private SpinnerNumberModel spnBlockZModel;
 	private SpinnerNumberModel spnStateModel;
-	private SimpleUniverse universe;
 	private List<Rule> rules;
 	private boolean simulationStarted;
-	private BranchGroup group;
+	private Simulation3D simulation;
 
 	public ControllerViewApp() {
 		viewApp = new ViewApp();
@@ -53,8 +45,6 @@ public class ControllerViewApp extends Controller {
 
 		if (Boolean.parseBoolean(Config.get("INIT_MAXIMIZED")))
 			viewApp.setExtendedState(JFrame.MAXIMIZED_BOTH);
-
-		initUniverse();
 
 		viewApp.setVisible(true);
 		rules = new ArrayList<Rule>();
@@ -106,6 +96,10 @@ public class ControllerViewApp extends Controller {
 		viewApp.getBtnZoomIn().setEnabled(false);
 		viewApp.getBtnZoomOut().setEnabled(false);
 		viewApp.getBtnSaveImage().setEnabled(false);
+		viewApp.getBtnArrowDown().setEnabled(false);
+		viewApp.getBtnArrowLeft().setEnabled(false);
+		viewApp.getBtnArrowRight().setEnabled(false);
+		viewApp.getBtnArrowUp().setEnabled(false);
 
 		viewApp.getTxtDescrip().setText(UtilDate.nowString());
 
@@ -121,15 +115,17 @@ public class ControllerViewApp extends Controller {
 		viewApp.getMenuItemClear().setEnabled(true);
 
 		Log.info(getClass(), Translate.get("LOG_SIMULATIONSTOP"));
+
+		if (simulation != null)
+			simulation.stop();
+
 	}
 
 	public void start() {
 		viewApp.getBtnStop().setEnabled(true);
 		viewApp.getBtnStart().setEnabled(false);
 		viewApp.getBtnSelectColor().setEnabled(false);
-		viewApp.getMenuItemExportConfig().setEnabled(false);
 		viewApp.getMenuItemImportConfig().setEnabled(false);
-		viewApp.getMenuItemClear().setEnabled(false);
 		viewApp.getSpnAgents().setEnabled(false);
 		viewApp.getSpnBlockX().setEnabled(false);
 		viewApp.getSpnBlockY().setEnabled(false);
@@ -139,26 +135,18 @@ public class ControllerViewApp extends Controller {
 		viewApp.getBtnZoomIn().setEnabled(true);
 		viewApp.getBtnZoomOut().setEnabled(true);
 		viewApp.getBtnSaveImage().setEnabled(true);
+		viewApp.getBtnArrowDown().setEnabled(true);
+		viewApp.getBtnArrowLeft().setEnabled(true);
+		viewApp.getBtnArrowRight().setEnabled(true);
+		viewApp.getBtnArrowUp().setEnabled(true);
 		Log.info(getClass(), Translate.get("LOG_SIMULATIONINIT"));
 		simulationStarted = true;
-	}
 
-	public void initUniverse() {
-		universe = new SimpleUniverse(viewApp.getCanvas3D());
-		universe.getViewingPlatform().setNominalViewingTransform();
-		group = new BranchGroup();
-		TransformGroup transformGroup = new TransformGroup();
-		transformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-		group.addChild(transformGroup);
-
-		transformGroup.addChild(new ColorCube(0.4));
-		Alpha rotationAlpha = new Alpha(-1, 4000);
-		RotationInterpolator rotator = new RotationInterpolator(rotationAlpha, transformGroup);
-		BoundingSphere bounds = new BoundingSphere();
-		rotator.setSchedulingBounds(bounds);
-		transformGroup.addChild(rotator);
-
-		universe.addBranchGraph(group);
+		if (simulation == null) {
+			Cell initialCell = new Cell((Integer) spnBlockXModel.getValue(), (Integer) spnBlockYModel.getValue(), (Integer) spnBlockZModel.getValue(), (Integer) spnStateModel.getValue(), viewApp.getBtnSelectColor().getColor());
+			simulation = new Simulation3D(viewApp.getCanvas3D(), (Integer) spnIterationsModel.getValue(), (Integer) spnAgentsModel.getValue(), (Integer) spnCellsPerAxisModel.getValue(), initialCell, rules.toArray(new Rule[rules.size()]), (Integer) spnDelayModel.getValue());
+			simulation.start();
+		}
 	}
 
 	public void updateStatus() {
@@ -199,6 +187,8 @@ public class ControllerViewApp extends Controller {
 		initView();
 		rules.clear();
 		simulationStarted = false;
+		simulation.detach();
+		simulation = null;
 	}
 
 	public void exportConfig() {

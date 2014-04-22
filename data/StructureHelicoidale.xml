@@ -2,8 +2,8 @@
 <simulation>
 	<configuration>
 		<delay>10</delay>
-		<iterations>20000</iterations>
-		<agents>100</agents>
+		<iterations>10000</iterations>
+		<agents>10</agents>
 		<latticeSize>11</latticeSize>
 		<description>StructureHelicoidale</description>
 	</configuration>
