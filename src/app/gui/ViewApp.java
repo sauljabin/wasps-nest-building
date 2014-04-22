@@ -76,6 +76,10 @@ public class ViewApp extends View {
 	private JPanel pnlCanvas;
 	private JButton btnSaveImage;
 	private JPanel pnlEast;
+	private JButton btnArrowUp;
+	private JButton btnArrowDown;
+	private JButton btnArrowLeft;
+	private JButton btnArrowRight;
 
 	@Override
 	public void init() {
@@ -190,9 +194,18 @@ public class ViewApp extends View {
 		btnZoomOut = new JButton(new ImageIcon("img/zoom-out20px.png"));
 		btnSaveImage = new JButton(new ImageIcon("img/camera20px.png"));
 
+		btnArrowUp = new JButton(new ImageIcon("img/arrow-up20px.png"));
+		btnArrowDown = new JButton(new ImageIcon("img/arrow-down20px.png"));
+		btnArrowLeft = new JButton(new ImageIcon("img/arrow-left20px.png"));
+		btnArrowRight = new JButton(new ImageIcon("img/arrow-right20px.png"));
+
 		pnlEast.add(btnStart, "wrap");
 		pnlEast.add(btnStop, "wrap 20");
 		pnlEast.add(btnSaveImage, "wrap");
+		pnlEast.add(btnArrowUp, "wrap");
+		pnlEast.add(btnArrowDown, "wrap");
+		pnlEast.add(btnArrowRight, "wrap");
+		pnlEast.add(btnArrowLeft, "wrap");
 		pnlEast.add(btnZoomIn, "wrap");
 		pnlEast.add(btnZoomOut, "wrap");
 
@@ -207,7 +220,7 @@ public class ViewApp extends View {
 		txtDescrip = new JTextField();
 		lblStatus = new JLabel();
 
-		pnlStatus.add(lblDescrip,"gapright 30");
+		pnlStatus.add(lblDescrip, "gapright 30");
 		pnlStatus.add(txtDescrip, "width 100%, wrap");
 		pnlStatus.add(lblStatus, "width 100%, span 2");
 
@@ -376,6 +389,22 @@ public class ViewApp extends View {
 
 	public JButton getBtnSaveImage() {
 		return btnSaveImage;
+	}
+
+	public JButton getBtnArrowUp() {
+		return btnArrowUp;
+	}
+
+	public JButton getBtnArrowDown() {
+		return btnArrowDown;
+	}
+
+	public JButton getBtnArrowLeft() {
+		return btnArrowLeft;
+	}
+
+	public JButton getBtnArrowRight() {
+		return btnArrowRight;
 	}
 
 }

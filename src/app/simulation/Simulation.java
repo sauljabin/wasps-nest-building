@@ -86,20 +86,33 @@ public class Simulation implements Runnable {
 		this(tmax, m, latticeSize, initialCell, rules, 40);
 	}
 
-	private void createAgents() {
+	public void createAgents() {
 		agents = new Agent[m];
 		for (int k = 0; k < m; k++) {
-			agents[k] = new Agent();
+			agents[k] = createAgent();
 			moveRandomly(agents[k]);
 		}
 	}
 
-	private void createLattice() {
+	public Agent createAgent() {
+		return new Agent();
+	}
+
+	public Cell createCell() {
+		return new Cell();
+	}
+
+	public void createLattice() {
 		lattice = new Cell[latticeSize][latticeSize][latticeSize];
 		for (int x = 0; x < latticeSize; x++) {
 			for (int y = 0; y < latticeSize; y++) {
 				for (int z = 0; z < latticeSize; z++) {
-					lattice[x][y][z] = new Cell(x, y, z, STATE_UNOCCUPIED, null);
+					Cell cell = createCell();
+					lattice[x][y][z] = cell;
+					cell.setX(x);
+					cell.setY(y);
+					cell.setZ(z);
+					cell.setState(STATE_UNOCCUPIED);
 				}
 			}
 		}
@@ -221,21 +234,26 @@ public class Simulation implements Runnable {
 			for (int k = 0; k < m; k++) {
 				Agent agent = agents[k];
 				String neighbourhood = getNeighbourhood(agent);
-				Rule rule = getRule(neighbourhood);
-				Cell cell = lattice[agent.getX()][agent.getY()][agent.getZ()];
-				if (rule != null) {
-					cell.setState(rule.getState());
-					cell.setColor(rule.getColor());
-				}
+				updateCell(lattice[agent.getX()][agent.getY()][agent.getZ()], getRule(neighbourhood));
 				moveRandomly(agent);
 			}
-
-			iterations++;
+			updateIterations();
 			try {
 				Thread.sleep(delay);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+
+	public void updateIterations() {
+		iterations++;
+	}
+
+	public void updateCell(Cell cell, Rule rule) {
+		if (rule != null) {
+			cell.setState(rule.getState());
+			cell.setColor(rule.getColor());
 		}
 	}
 }

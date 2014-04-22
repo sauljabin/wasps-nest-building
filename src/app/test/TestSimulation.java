@@ -118,7 +118,5 @@ public class TestSimulation {
 		println("Results:");
 		printLattice(simulation);
 
-		pressIntro();
-
 	}
 }
