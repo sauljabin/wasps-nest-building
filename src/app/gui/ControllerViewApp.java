@@ -1,10 +1,32 @@
+/**
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * 
+ *		SAUL PIÑA - SAULJP07@GMAIL.COM
+ *		2014
+ */
+
 package app.gui;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.media.j3d.Canvas3D;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.SpinnerNumberModel;
@@ -15,6 +37,7 @@ import app.Config;
 import app.Log;
 import app.Translate;
 import app.animation.Simulation3D;
+import app.animation.ViewUpdater;
 import app.simulation.Cell;
 import app.simulation.Configuration;
 import app.simulation.Exporter;
@@ -22,8 +45,9 @@ import app.simulation.Importer;
 import app.simulation.Rule;
 import app.util.UtilDate;
 import app.util.UtilFile;
+import app.util.UtilImage;
 
-public class ControllerViewApp extends Controller {
+public class ControllerViewApp extends Controller implements ViewUpdater {
 
 	private ViewApp viewApp;
 	private SpinnerNumberModel spnDelayModel;
@@ -103,7 +127,8 @@ public class ControllerViewApp extends Controller {
 
 		viewApp.getTxtDescrip().setText(UtilDate.nowString());
 
-		updateStatus();
+		updateStatus(Translate.get("LOG_SIMULATIONNOTINIT"));
+		viewApp.getLblIterationsStatus().setText("");
 	}
 
 	public void stop() {
@@ -144,13 +169,20 @@ public class ControllerViewApp extends Controller {
 
 		if (simulation == null) {
 			Cell initialCell = new Cell((Integer) spnBlockXModel.getValue(), (Integer) spnBlockYModel.getValue(), (Integer) spnBlockZModel.getValue(), (Integer) spnStateModel.getValue(), viewApp.getBtnSelectColor().getColor());
-			simulation = new Simulation3D(viewApp.getCanvas3D(), (Integer) spnIterationsModel.getValue(), (Integer) spnAgentsModel.getValue(), (Integer) spnCellsPerAxisModel.getValue(), initialCell, rules.toArray(new Rule[rules.size()]), (Integer) spnDelayModel.getValue());
-			simulation.start();
+			simulation = new Simulation3D(this, (Integer) spnIterationsModel.getValue(), (Integer) spnAgentsModel.getValue(), (Integer) spnCellsPerAxisModel.getValue(), initialCell, rules.toArray(new Rule[rules.size()]), (Integer) spnDelayModel.getValue());
 		}
+		simulation.start();
+
 	}
 
-	public void updateStatus() {
-		viewApp.getLblStatus().setText(String.format("%s %d", Translate.get("GUI_ITERATIONS"), 0));
+	@Override
+	public void updateIterationsStatus(int iterations) {
+		viewApp.getLblIterationsStatus().setText(String.format("%s %d", Translate.get("GUI_ITERATIONS"), iterations));
+	}
+
+	@Override
+	public void updateStatus(String status) {
+		viewApp.getLblStatus().setText(status);
 	}
 
 	@Override
@@ -181,23 +213,77 @@ public class ControllerViewApp extends Controller {
 			exportConfig();
 		else if (source.equals(viewApp.getMenuItemClear()))
 			clear();
+		else if (source.equals(viewApp.getBtnSaveImage()))
+			saveImage();
+		else if (source.equals(viewApp.getSpnDelay()))
+			changeDelay();
+		else if (source.equals(viewApp.getSpnIterations()))
+			changeIterations();
+	}
+
+	public void changeIterations() {
+		if (simulation == null)
+			return;
+		simulation.setTmax((Integer) spnIterationsModel.getValue());
+	}
+
+	public void changeDelay() {
+		if (simulation == null)
+			return;
+		simulation.setDelay((Integer) spnDelayModel.getValue());
+	}
+
+	public void saveImage() {
+		BufferedImage bImage = simulation.getImage();
+
+		String ext = "png";
+
+		JFileChooser file = new JFileChooser();
+		file.setCurrentDirectory(new File("."));
+		file.setSelectedFile(new File(viewApp.getTxtDescrip().getText()));
+		file.setAcceptAllFileFilterUsed(false);
+		file.setMultiSelectionEnabled(false);
+		file.setFileFilter(new FileNameExtensionFilter(ext.toUpperCase(), ext));
+		file.showSaveDialog(viewApp);
+		File path = file.getSelectedFile();
+
+		if (path == null)
+			return;
+
+		String fileName = path.getAbsolutePath();
+
+		if (!UtilFile.isFileType(fileName, ext))
+			fileName += "." + ext;
+
+		try {
+			UtilImage.writeImage(bImage, fileName);
+			Log.info(getClass(), Translate.get("LOG_SAVEIMAGE") + " " + fileName);
+		} catch (Exception e) {
+			Log.error(getClass(), Translate.get("LOG_ERRORSAVEIMAGE"), e);
+			return;
+		}
+
 	}
 
 	public void clear() {
 		initView();
 		rules.clear();
 		simulationStarted = false;
-		simulation.detach();
+		if (simulation != null)
+			simulation.detach();
 		simulation = null;
 	}
 
 	public void exportConfig() {
+
+		String ext = "xml";
+
 		JFileChooser file = new JFileChooser();
 		file.setCurrentDirectory(new File("."));
 		file.setSelectedFile(new File(viewApp.getTxtDescrip().getText()));
 		file.setAcceptAllFileFilterUsed(false);
 		file.setMultiSelectionEnabled(false);
-		file.setFileFilter(new FileNameExtensionFilter("XML", "xml"));
+		file.setFileFilter(new FileNameExtensionFilter(ext.toUpperCase(), ext));
 		file.showSaveDialog(viewApp);
 		File path = file.getSelectedFile();
 
@@ -209,8 +295,8 @@ public class ControllerViewApp extends Controller {
 
 		String fileName = path.getAbsolutePath();
 
-		if (!UtilFile.isFileType(fileName, "xml"))
-			fileName += ".xml";
+		if (!UtilFile.isFileType(fileName, ext))
+			fileName += "." + ext;
 
 		Exporter exporter = new Exporter(fileName, configuration, initialCell, rules);
 		try {
@@ -303,6 +389,23 @@ public class ControllerViewApp extends Controller {
 				new ViewConfig();
 			}
 		});
+	}
+
+	@Override
+	public Canvas3D getCanvas3D() {
+		return viewApp.getCanvas3D();
+	}
+
+	@Override
+	public void changeToStopConfiguration() {
+		viewApp.getBtnStop().setEnabled(false);
+		viewApp.getBtnStart().setEnabled(true);
+		viewApp.getSpnDelay().setEnabled(true);
+		viewApp.getSpnIterations().setEnabled(true);
+		viewApp.getMenuItemExportConfig().setEnabled(true);
+		viewApp.getMenuItemClear().setEnabled(true);
+
+		Log.info(getClass(), Translate.get("LOG_SIMULATIONSTOP"));
 	}
 
 }

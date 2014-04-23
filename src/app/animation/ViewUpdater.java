@@ -16,51 +16,20 @@
  * 
  *		SAUL PIÑA - SAULJP07@GMAIL.COM
  *		2014
+ *
+ *		COLLABORATOR: JORGE PARRA - THEJORGEMYLIO@GMAIL.COM
  */
 
-package app.simulation;
+package app.animation;
 
-public class Agent {
-	private int x;
-	private int y;
-	private int z;
+import javax.media.j3d.Canvas3D;
 
-	public int getX() {
-		return x;
-	}
+public interface ViewUpdater {
+	public void updateStatus(String status);
 
-	public void setX(int x) {
-		this.x = x;
-	}
+	public void updateIterationsStatus(int iterations);
 
-	public int getY() {
-		return y;
-	}
+	public Canvas3D getCanvas3D();
 
-	public void setY(int y) {
-		this.y = y;
-	}
-
-	public int getZ() {
-		return z;
-	}
-
-	public void setZ(int z) {
-		this.z = z;
-	}
-
-	@Override
-	public String toString() {
-		return String.format("Agent [x=%2s, y=%2s, z=%2s]", x, y, z);
-	}
-
-	public Agent() {
-	}
-
-	public Agent(int x, int y, int z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
-
+	public void changeToStopConfiguration();
 }

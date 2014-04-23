@@ -1,6 +1,27 @@
+/**
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * 
+ *		SAUL PIÑA - SAULJP07@GMAIL.COM
+ *		2014
+ */
+
 package app.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GraphicsConfiguration;
 
 import javax.media.j3d.Canvas3D;
@@ -80,6 +101,7 @@ public class ViewApp extends View {
 	private JButton btnArrowDown;
 	private JButton btnArrowLeft;
 	private JButton btnArrowRight;
+	private JLabel lblIterationsStatus;
 
 	@Override
 	public void init() {
@@ -219,10 +241,13 @@ public class ViewApp extends View {
 		lblDescrip = new JLabel();
 		txtDescrip = new JTextField();
 		lblStatus = new JLabel();
+		lblStatus.setForeground(Color.RED);
+		lblIterationsStatus = new JLabel();
 
-		pnlStatus.add(lblDescrip, "gapright 30");
-		pnlStatus.add(txtDescrip, "width 100%, wrap");
-		pnlStatus.add(lblStatus, "width 100%, span 2");
+		pnlStatus.add(lblDescrip, "gapright 60");
+		pnlStatus.add(txtDescrip, "width 100%, wrap, span 2");
+		pnlStatus.add(lblIterationsStatus);
+		pnlStatus.add(lblStatus);
 
 		pnlCenter.add(pnlStatus, BorderLayout.SOUTH);
 
@@ -255,6 +280,7 @@ public class ViewApp extends View {
 		addButtonToAction(btnStop);
 		addButtonToAction(btnZoomIn);
 		addButtonToAction(btnZoomOut);
+		addButtonToAction(btnSaveImage);
 
 		addSpinnerToAction(spnAgents);
 		addSpinnerToAction(spnBlockX);
@@ -405,6 +431,10 @@ public class ViewApp extends View {
 
 	public JButton getBtnArrowRight() {
 		return btnArrowRight;
+	}
+
+	public JLabel getLblIterationsStatus() {
+		return lblIterationsStatus;
 	}
 
 }

@@ -34,8 +34,11 @@ GUI_CANCEL=Cancelar
 
 LOG_APPINIT=Aplicación iniciada
 LOG_SIMULATIONINIT=Simulación iniciada
+LOG_SIMULATIONNOTINIT=Simulación no iniciada
 LOG_SIMULATIONSTOP=Simulación detenida
 LOG_IMPORTERROR=Error al importar configuración
 LOG_IMPORTSUCCESSFUL=Archivo importado satisfactoriamente
 LOG_EXPORTERROR=Error al exportar configuración
 LOG_EXPORTSUCCESSFUL=Archivo exportado satisfactoriamente
+LOG_SAVEIMAGE=Imagen guardada exitosamente
+LOG_ERRORSAVEIMAGE=Error al guardar imagen
