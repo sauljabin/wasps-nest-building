@@ -1,19 +1,35 @@
+/**
+ * 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * 
+ *		SAUL PIÑA - SAULJP07@GMAIL.COM
+ *		2014
+ */
+
 package app.util;
 
 import java.awt.Color;
 
-import javax.media.j3d.AmbientLight;
 import javax.media.j3d.Appearance;
 import javax.media.j3d.Background;
 import javax.media.j3d.BoundingSphere;
 import javax.media.j3d.Material;
-import javax.media.j3d.PointLight;
 import javax.media.j3d.Transform3D;
 import javax.media.j3d.TransformGroup;
 import javax.media.j3d.TransparencyAttributes;
 import javax.vecmath.Color3f;
-import javax.vecmath.Point3d;
-import javax.vecmath.Point3f;
 import javax.vecmath.Vector3d;
 
 public class Util3D {
@@ -82,27 +98,6 @@ public class Util3D {
 	public static TransformGroup createTransformGroup(Vector3d displace, Vector3d scale, double rotationX, double rotationY, double rotationZ) {
 		TransformGroup tg = new TransformGroup();
 		tg.setTransform(createTransform3D(displace, scale, rotationX, rotationY, rotationZ));
-		return tg;
-	}
-
-	public static TransformGroup creatLight() {
-		TransformGroup tg = new TransformGroup();
-		AmbientLight al = new AmbientLight(new Color3f(Color.WHITE));
-		al.setInfluencingBounds(new BoundingSphere());
-		tg.addChild(al);
-
-		PointLight pl = new PointLight(new Color3f(Color.GRAY), new Point3f(0, 2, 0), new Point3f(.1f, .1f, .1f));
-		pl.setInfluencingBounds(new BoundingSphere(new Point3d(), 200));
-		tg.addChild(pl);
-
-		PointLight pl2 = new PointLight(new Color3f(Color.GRAY), new Point3f(2, 0, 0), new Point3f(.1f, .1f, .1f));
-		pl2.setInfluencingBounds(new BoundingSphere(new Point3d(), 200));
-		tg.addChild(pl2);
-
-		PointLight pl3 = new PointLight(new Color3f(Color.GRAY), new Point3f(0, 0, 2), new Point3f(.1f, .1f, .1f));
-		pl3.setInfluencingBounds(new BoundingSphere(new Point3d(), 200));
-		tg.addChild(pl3);
-
 		return tg;
 	}
 
