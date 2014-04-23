@@ -177,7 +177,6 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
 			simulation = new Simulation3D(this, configuration, initialCell, rules.toArray(new Rule[rules.size()]));
 		}
 		simulation.start();
-
 	}
 
 	@Override
@@ -206,10 +205,6 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
 			start();
 		else if (source.equals(viewApp.getBtnStop()))
 			stop();
-		else if (source.equals(viewApp.getBtnZoomIn()))
-			zoomIn();
-		else if (source.equals(viewApp.getBtnZoomOut()))
-			zoomOut();
 		else if (source.equals(viewApp.getMenuItemShowRules()))
 			showRules();
 		else if (source.equals(viewApp.getMenuItemImportConfig()))
@@ -271,6 +266,9 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
 	}
 
 	public void clear() {
+		if (simulation != null)
+			simulation.stop();
+
 		viewApp.getPnlCanvas().remove(viewApp.getCanvas3D());
 
 		GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
@@ -353,14 +351,6 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
 
 	public void showRules() {
 		new ControllerViewRules(rules, simulationStarted);
-	}
-
-	public void zoomOut() {
-
-	}
-
-	public void zoomIn() {
-
 	}
 
 	public void changeCellsPerAxis() {
