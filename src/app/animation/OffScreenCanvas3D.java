@@ -43,8 +43,7 @@ public class OffScreenCanvas3D extends Canvas3D {
 		renderOffScreenBuffer();
 		waitForOffScreenRendering();
 		bImage = getOffScreenBuffer().getImage();
-		
-		bImage.flush();
+		setOffScreenBuffer(null);
 		return bImage;
 	}
 

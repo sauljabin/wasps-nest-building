@@ -224,12 +224,12 @@ public class ViewApp extends View {
 		pnlEast.add(btnStart, "wrap");
 		pnlEast.add(btnStop, "wrap 20");
 		pnlEast.add(btnSaveImage, "wrap");
-		pnlEast.add(btnArrowUp, "wrap");
-		pnlEast.add(btnArrowDown, "wrap");
-		pnlEast.add(btnArrowRight, "wrap");
-		pnlEast.add(btnArrowLeft, "wrap");
-		pnlEast.add(btnZoomIn, "wrap");
-		pnlEast.add(btnZoomOut, "wrap");
+		// pnlEast.add(btnArrowUp, "wrap");
+		// pnlEast.add(btnArrowDown, "wrap");
+		// pnlEast.add(btnArrowRight, "wrap");
+		// pnlEast.add(btnArrowLeft, "wrap");
+		// pnlEast.add(btnZoomIn, "wrap");
+		// pnlEast.add(btnZoomOut, "wrap");
 
 		add(pnlEast, BorderLayout.EAST);
 		// EAST
