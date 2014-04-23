@@ -437,4 +437,12 @@ public class ViewApp extends View {
 		return lblIterationsStatus;
 	}
 
+	public JPanel getPnlCanvas() {
+		return pnlCanvas;
+	}
+
+	public void setCanvas3D(Canvas3D canvas3d) {
+		canvas3D = canvas3d;
+	}
+
 }
