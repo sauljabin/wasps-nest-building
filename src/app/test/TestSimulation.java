@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 
 import app.simulation.Agent;
 import app.simulation.Cell;
+import app.simulation.Configuration;
 import app.simulation.Importer;
 import app.simulation.Rule;
 import app.simulation.Simulation;
@@ -120,13 +121,11 @@ public class TestSimulation {
 		printImporter(importer);
 
 		// SIMULATION
-		int tmax = importer.getConfiguration().getIterations();
-		int m = importer.getConfiguration().getAgents();
-		int latticeSize = importer.getConfiguration().getLatticeSize();
+		Configuration configuration = importer.getConfiguration();
 		Rule[] rules = importer.getRules().toArray(new Rule[importer.getRules().size()]);
 		Cell initialCell = importer.getInitialCell();
 
-		Simulation simulation = new Simulation(tmax, m, latticeSize, initialCell, rules);
+		Simulation simulation = new Simulation(configuration, initialCell, rules);
 		simulation.setDelay(0);
 
 		printRules(simulation);

@@ -44,6 +44,7 @@ import javax.vecmath.Vector3f;
 import app.Translate;
 import app.simulation.Agent;
 import app.simulation.Cell;
+import app.simulation.Configuration;
 import app.simulation.Rule;
 import app.simulation.Simulation;
 import app.util.Util3D;
@@ -63,20 +64,18 @@ public class Simulation3D extends Simulation {
 	private TransformGroup transformGroupGeneric;
 	private ViewUpdater viewUpdater;
 
-	public Simulation3D(ViewUpdater viewUpdater, int tmax, int m, int latticeSize, Cell initialCell, Rule[] rules, int delay) {
-		super(tmax, m, latticeSize, initialCell, rules, delay);
+	public Simulation3D(ViewUpdater viewUpdater, Configuration configuration, Cell initialCell, Rule[] rules) {
+		super(configuration, initialCell, rules);
 		this.canvas3D = viewUpdater.getCanvas3D();
 		this.viewUpdater = viewUpdater;
 		init();
 	}
 
-	private void init() {
-
+	public void init() {
 		universe = new SimpleUniverse(canvas3D);
 		universe.getViewingPlatform().setNominalViewingTransform();
 
 		branchGroup = new BranchGroup();
-		branchGroup.setCapability(BranchGroup.ALLOW_DETACH);
 		branchGroup.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
 
 		transformGroupGeneric = new TransformGroup();
@@ -145,10 +144,6 @@ public class Simulation3D extends Simulation {
 
 	public double getCoordinate(int value) {
 		return value * 1. / 5.;
-	}
-
-	public void detach() {		
-		branchGroup.detach();
 	}
 
 	public TransformGroup createFloor() {

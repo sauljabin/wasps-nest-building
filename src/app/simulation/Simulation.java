@@ -88,22 +88,18 @@ public class Simulation implements Runnable {
 		return initialCell;
 	}
 
-	public Simulation(int tmax, int m, int latticeSize, Cell initialCell, Rule[] rules, int delay) {
-		this.tmax = tmax;
-		this.m = m;
-		this.latticeSize = latticeSize;
+	public Simulation(Configuration configuration, Cell initialCell, Rule[] rules) {
+		this.tmax = configuration.getIterations();
+		this.m = configuration.getAgents();
+		this.latticeSize = configuration.getLatticeSize();
 		this.rules = rules;
-		this.delay = delay;
+		this.delay = configuration.getDelay();
 		this.initialCell = initialCell;
 
 		random = new Random();
 
 		createLattice();
 		createAgents();
-	}
-
-	public Simulation(int tmax, int m, int latticeSize, Cell initialCell, Rule[] rules) {
-		this(tmax, m, latticeSize, initialCell, rules, 40);
 	}
 
 	public void createAgents() {

@@ -20,7 +20,9 @@
 
 package app.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.GraphicsConfiguration;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -32,6 +34,8 @@ import javax.swing.JFrame;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
+import com.sun.j3d.utils.universe.SimpleUniverse;
 
 import app.Config;
 import app.Log;
@@ -169,7 +173,8 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
 
 		if (simulation == null) {
 			Cell initialCell = new Cell((Integer) spnBlockXModel.getValue(), (Integer) spnBlockYModel.getValue(), (Integer) spnBlockZModel.getValue(), (Integer) spnStateModel.getValue(), viewApp.getBtnSelectColor().getColor());
-			simulation = new Simulation3D(this, (Integer) spnIterationsModel.getValue(), (Integer) spnAgentsModel.getValue(), (Integer) spnCellsPerAxisModel.getValue(), initialCell, rules.toArray(new Rule[rules.size()]), (Integer) spnDelayModel.getValue());
+			Configuration configuration = new Configuration((Integer) spnDelayModel.getValue(), (Integer) spnIterationsModel.getValue(), (Integer) spnAgentsModel.getValue(), (Integer) spnCellsPerAxisModel.getValue(), viewApp.getTxtDescrip().getText());
+			simulation = new Simulation3D(this, configuration, initialCell, rules.toArray(new Rule[rules.size()]));
 		}
 		simulation.start();
 
@@ -236,16 +241,16 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
 	public void saveImage() {
 		BufferedImage bImage = simulation.getImage();
 
-		String ext = "png";
-
 		JFileChooser file = new JFileChooser();
 		file.setCurrentDirectory(new File("."));
 		file.setSelectedFile(new File(viewApp.getTxtDescrip().getText()));
 		file.setAcceptAllFileFilterUsed(false);
 		file.setMultiSelectionEnabled(false);
-		file.setFileFilter(new FileNameExtensionFilter(ext.toUpperCase(), ext));
+		file.setFileFilter(new FileNameExtensionFilter("JPG", "jpg"));
+		file.setFileFilter(new FileNameExtensionFilter("PNG", "png"));
 		file.showSaveDialog(viewApp);
 		File path = file.getSelectedFile();
+		String ext = file.getFileFilter().getDescription().toLowerCase();
 
 		if (path == null)
 			return;
@@ -266,11 +271,15 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
 	}
 
 	public void clear() {
+		viewApp.getPnlCanvas().remove(viewApp.getCanvas3D());
+
+		GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
+		viewApp.setCanvas3D(new Canvas3D(config));
+		viewApp.getPnlCanvas().add(viewApp.getCanvas3D(), BorderLayout.CENTER);
+
 		initView();
 		rules.clear();
 		simulationStarted = false;
-		if (simulation != null)
-			simulation.detach();
 		simulation = null;
 	}
 
