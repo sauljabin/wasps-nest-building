@@ -9,8 +9,6 @@
 
 package app.animation;
 
-import java.awt.Color;
-
 import javax.media.j3d.TransformGroup;
 import javax.vecmath.Vector3d;
 
@@ -26,7 +24,8 @@ public class Agent3D extends Agent {
 	public Agent3D() {
 		tg = Util3D.createTransformGroup(new Vector3d(0, 0, 0), null, 0, 0, 0);
 		tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-		tg.addChild(new Sphere(.1f, Util3D.createAppearance(Color.BLACK)));
+		// tg.addChild(new Sphere(.1f, Util3D.createAppearance(Color.BLACK))); 
+		tg.addChild(new Sphere(.1f, Util3D.createTransparencyAppearance(1f)));
 	}
 
 	public TransformGroup getTransformGroup() {

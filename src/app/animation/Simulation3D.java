@@ -110,8 +110,9 @@ public class Simulation3D extends Simulation {
 				}
 			}
 		}
-
-		transformGroupGeneric.addChild(Util3D.createBackground(new Color(0, 204, 255)));
+		
+		// transformGroupGeneric.addChild(Util3D.createBackground(new Color(0, 204, 255))); 
+		transformGroupGeneric.addChild(Util3D.createBackground(Color.WHITE));
 		universe.addBranchGraph(branchGroup);
 
 		offScreenCanvas3D = new OffScreenCanvas3D(SimpleUniverse.getPreferredConfiguration());
