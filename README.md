@@ -11,14 +11,24 @@ tres dimensiones y que se comportan a nivel local como máquinas de
 estímulo-respuesta. Cada agente contribuye a la construcción de
 una estrutura regida por micro-reglas.
 
-- Copyright: 2014 Saúl Piña <sauljabin@gmail.com>
+- Copyright: 2014-2017 Saúl Piña <sauljabin@gmail.com>
 - Repository: https://github.com/sauljabin/wasps-nest-building
 - License: MIT
 - Language: Java
-- IDE: Eclipse
+- Ubuntu
 
 
-Screenshots
+Comandos
+--------
+
+```
+make run
+
+make clean
+```
+
+
+Imagenes
 -----------
-![](/documents/screenshot-1.png)
-![](/documents/screenshot-2.png)
+![](documents/screenshot.png)
+![](documents/StructureHelicoidale.png)
