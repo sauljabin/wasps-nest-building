@@ -1,12 +1,12 @@
+group 'io.github.sauljabin'
+version '1.0-SNAPSHOT'
 
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'application'
 
-version = '1.0.0'
 mainClassName = 'app.Main'
-
 sourceCompatibility = 1.8
 
 repositories {
