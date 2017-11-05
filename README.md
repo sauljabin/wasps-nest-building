@@ -5,7 +5,7 @@ Descripción
 -----------
 Inspirados en el comportamiento de las avispas al construir sus
 nidos, Theraulaz y Bonabeau proponen el algoritmo de construcción
-de nido de avispas, éste considera a un grupo de agentes que se
+de nido de avispas, este considera a un grupo de agentes que se
 mueven de forma asincrónica y aleatoria en un espacio discreto en
 tres dimensiones y que se comportan a nivel local como máquinas de
 estímulo-respuesta. Cada agente contribuye a la construcción de
@@ -28,7 +28,12 @@ make clean
 ```
 
 
-Imagenes
+Screenshots
 -----------
-![](documents/screenshot.png)
-![](documents/StructureHelicoidale.png)
+![](documents/screenshots/screenshot-1.png)
+
+![](documents/screenshots/screenshot-2.png)
+
+Resultados
+----------
+![](documents/data/StructureHelicoidale.png)
