@@ -75,6 +75,7 @@ public class ViewApp extends View {
     private JButton btnArrowLeft;
     private JButton btnArrowRight;
     private JLabel lblIterationsStatus;
+    private JButton btnRefresh;
 
     @Override
     public void init() {
@@ -184,6 +185,7 @@ public class ViewApp extends View {
 
         btnStart = new JButton(ImageLoader.loadImage("play20px"));
         btnStop = new JButton(ImageLoader.loadImage("pause20px"));
+        btnRefresh = new JButton(ImageLoader.loadImage("arrow-sync20px"));
 
         btnZoomIn = new JButton(ImageLoader.loadImage("zoom-in20px"));
         btnZoomOut = new JButton(ImageLoader.loadImage("zoom-out20px"));
@@ -195,7 +197,8 @@ public class ViewApp extends View {
         btnArrowRight = new JButton(ImageLoader.loadImage("arrow-right20px"));
 
         pnlEast.add(btnStart, "wrap");
-        pnlEast.add(btnStop, "wrap 20");
+        pnlEast.add(btnStop, "wrap");
+        pnlEast.add(btnRefresh, "wrap 20");
         pnlEast.add(btnSaveImage, "wrap");
         // pnlEast.add(btnArrowUp, "wrap");
         // pnlEast.add(btnArrowDown, "wrap");
@@ -251,6 +254,7 @@ public class ViewApp extends View {
         addButtonToAction(btnSelectColor);
         addButtonToAction(btnStart);
         addButtonToAction(btnStop);
+        addButtonToAction(btnRefresh);
         addButtonToAction(btnZoomIn);
         addButtonToAction(btnZoomOut);
         addButtonToAction(btnSaveImage);
@@ -418,4 +422,7 @@ public class ViewApp extends View {
         return pnlCanvas;
     }
 
+    public JButton getBtnRefresh() {
+        return btnRefresh;
+    }
 }

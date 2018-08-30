@@ -89,8 +89,18 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
 
         viewApp.getBtnSelectColor().setColor(Color.BLACK);
 
+        elementsInitStates();
+
+        viewApp.getTxtDescrip().setText(UtilDate.nowString());
+
+        updateStatus(Translate.get("LOG_SIMULATIONNOTINIT"));
+        viewApp.getLblIterationsStatus().setText("");
+    }
+
+    private void elementsInitStates() {
         viewApp.getBtnStop().setEnabled(false);
         viewApp.getBtnStart().setEnabled(true);
+        viewApp.getBtnRefresh().setEnabled(true);
         viewApp.getBtnSelectColor().setEnabled(true);
         viewApp.getMenuItemExportConfig().setEnabled(true);
         viewApp.getMenuItemImportConfig().setEnabled(true);
@@ -110,11 +120,6 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
         viewApp.getBtnArrowLeft().setEnabled(false);
         viewApp.getBtnArrowRight().setEnabled(false);
         viewApp.getBtnArrowUp().setEnabled(false);
-
-        viewApp.getTxtDescrip().setText(UtilDate.nowString());
-
-        updateStatus(Translate.get("LOG_SIMULATIONNOTINIT"));
-        viewApp.getLblIterationsStatus().setText("");
     }
 
     public void stop() {
@@ -187,6 +192,8 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
             start();
         else if (source.equals(viewApp.getBtnStop()))
             stop();
+        else if (source.equals(viewApp.getBtnRefresh()))
+            refresh();
         else if (source.equals(viewApp.getMenuItemShowRules()))
             showRules();
         else if (source.equals(viewApp.getMenuItemImportConfig()))
@@ -201,6 +208,28 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
             changeDelay();
         else if (source.equals(viewApp.getSpnIterations()))
             changeIterations();
+    }
+
+    private void refresh() {
+        if (simulation != null)
+            simulation.stop();
+
+        viewApp.getPnlCanvas().remove(viewApp.getCanvas3D());
+
+        GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
+        viewApp.setCanvas3D(new Canvas3D(config));
+        viewApp.getPnlCanvas().add(viewApp.getCanvas3D(), BorderLayout.CENTER);
+
+        elementsInitStates();
+
+        simulationStarted = false;
+        simulation = null;
+    }
+
+    public void clear() {
+        refresh();
+        initView();
+        rules.clear();
     }
 
     public void changeIterations() {
@@ -245,22 +274,6 @@ public class ControllerViewApp extends Controller implements ViewUpdater {
             return;
         }
 
-    }
-
-    public void clear() {
-        if (simulation != null)
-            simulation.stop();
-
-        viewApp.getPnlCanvas().remove(viewApp.getCanvas3D());
-
-        GraphicsConfiguration config = SimpleUniverse.getPreferredConfiguration();
-        viewApp.setCanvas3D(new Canvas3D(config));
-        viewApp.getPnlCanvas().add(viewApp.getCanvas3D(), BorderLayout.CENTER);
-
-        initView();
-        rules.clear();
-        simulationStarted = false;
-        simulation = null;
     }
 
     public void exportConfig() {
